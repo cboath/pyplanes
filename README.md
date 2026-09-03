@@ -84,3 +84,43 @@ address, callsign, altitude, ground speed, track, vertical rate, squawk,
 last known lat/lon, and seconds since last update. The header shows
 connection status and total message count; the script auto-reconnects
 if readsb restarts.
+
+## 4. Feed FlightAware / ADS-B Exchange (optional)
+
+readsb can serve multiple consumers off the same dongle at once, so you
+can feed community networks alongside running `adsb_display.py` -- no
+extra hardware needed. Feeder clients connect to readsb's Beast output
+on port 30005 (more efficient than the SBS feed used for the display).
+
+Most networks give you a free premium account tier ("feeder credit") in
+exchange for feeding them your local data.
+
+### FlightAware (piaware)
+
+```bash
+sudo apt install -y piaware
+sudo piaware-config -receiver-type relay -receiver-host 127.0.0.1 -receiver-port 30005
+sudo systemctl restart piaware
+sudo piaware-status
+```
+
+`piaware-status` prints a site/claim number once it's connected. Claim
+the station at
+[flightaware.com/adsb/piaware/claim](https://flightaware.com/adsb/piaware/claim)
+to link it to your FlightAware account and start earning feeder stats
+(a free FlightAware Enterprise account tier while you keep feeding).
+
+### ADS-B Exchange
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/adsbxchange/adsb-exchange/master/install.sh | sudo bash
+```
+
+The installer prompts for the local Beast source (`127.0.0.1:30005`)
+and registers a feeder UUID automatically. Create an ADS-B Exchange
+account and associate that UUID to get feeder credit (free API/stats
+access). Local feed stats are typically available at
+`http://<pi-ip-address>:30053` once it's running.
+
+Both feeders run as independent systemd services alongside readsb and
+`adsb_display.py`, and don't require any changes to this script.
