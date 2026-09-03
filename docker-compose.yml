@@ -1,0 +1,7 @@
+services:
+  pyplanes-web:
+    build: .
+    container_name: pyplanes-web
+    restart: unless-stopped
+    network_mode: host
+    command: ["--host", "127.0.0.1", "--port", "30003", "--listen-port", "8080"]
